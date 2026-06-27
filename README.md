@@ -14,12 +14,6 @@ An automated AI research pipeline that coordinates cooperative agent nodes (Plan
   5. **Review Agent**: Refines academic tone and compiles references.
 - **Long-Form Generation**: Iterative writing blocks supporting detailed, structured papers (up to 18,000–22,000 words).
 - **Server-Sent Events (SSE)**: Real-time backend streaming of logs, metrics, and text drafts directly to the user interface.
-- **Custom Structure Guidelines**: Accept input templates/rules to automatically shape the generated outline format.
-- **Dual execution modes**:
-  - **Interactive Demo Mode**: Zero-cost, local offline simulator to test all logs and layout.
-  - **Live AI Mode**: Uses your `OPENAI_API_KEY` to execute live OpenAI GPT generation.
-
----
 
 ## Project Structure
 
@@ -30,29 +24,3 @@ An automated AI research pipeline that coordinates cooperative agent nodes (Plan
   - `services/arxiv_retriever.py`: Fetches and parses relevant XML metadata feeds from arXiv.
   - `services/pipeline_manager.py`: Coordinates the multi-agent execution pipeline.
   - `services/llm_service.py`: Helper class for LLM API calls and offline mock fallbacks.
-- **`frontend/`** (User Interface)
-  - `index.html`: Responsive, glassmorphic analytics dashboard. Contains the live terminal console, RAG citation reader, and markdown document rendering panels.
-
----
-
-## Setup & Execution on Windows
-
-### 1. Run the Python Backend
-1. Open a PowerShell window and change to the backend directory:
-   ```powershell
-   cd "C:\Users\Ashutosh Kumar\.gemini\antigravity\scratch\academic_research_generator\backend"
-   ```
-2. Activate your virtual environment and install packages:
-   ```powershell
-   .\venv\Scripts\pip.exe install -r requirements.txt
-   ```
-3. Start the FastAPI development server:
-   ```powershell
-   .\venv\Scripts\uvicorn.exe main:app --reload --port 8000
-   ```
-   *Note: Keep this shell window running. If it closes, your backend stops.*
-
-### 2. Open the UI Cockpit
-1. Navigate to the `frontend/` folder in Windows File Explorer.
-2. Double-click **`index.html`** to launch the cockpit dashboard in your web browser.
-3. Configure your pipeline, type a research topic, and click **Initialize Pipeline** to start generating!
