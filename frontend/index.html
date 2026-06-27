@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academic Research Multi-Agent Orchestrator</title>
+  
+  <!-- Tailwind CSS via CDN for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans selection:bg-indigo-500/30">
+
+  <!-- Header -->
+  <header class="border-b border-slate-900 bg-slate-950/80 backdrop-blur px-8 py-4 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center space-x-3">
+      <div class="relative flex h-3 w-3">
+        <span id="pulseIndicator" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-600 opacity-75"></span>
+        <span id="dotIndicator" class="relative inline-flex rounded-full h-3 w-3 bg-slate-500"></span>
+      </div>
+      <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+        Academic Research AI Cockpit
+      </h1>
+    </div>
+    
+    <div class="flex items-center space-x-4">
+      <div class="text-xs text-slate-400 flex items-center space-x-2">
+        <span>Backend Status:</span>
+        <span id="backendStatus" class="font-semibold text-yellow-500">Connecting...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Grid -->
+  <main class="flex-1 w-full max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- LEFT PANEL: Controls & Settings (5 cols) -->
+    <section class="lg:col-span-4 space-y-6">
+      
+      <!-- Control Panel Card -->
+      <div class="bg-slate-900/40 border border-slate-800 p-6 rounded-2xl space-y-6">
+        <div>
+          <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-1">Pipeline Configurations</h2>
+          <p class="text-xs text-slate-500">Select agents and target execution guidelines.</p>
+        </div>
+
+        <!-- Topic Input -->
+        <div class="space-y-2">
+          <label class="text-xs font-semibold text-slate-400">Research Topic</label>
+          <textarea
+            id="topicInput"
+            rows="2"
+            placeholder="e.g. Swin Transformers for low-compute edge devices..."
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition text-white resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Custom Document Structure -->
+        <div class="space-y-2">
+          <label class="text-xs font-semibold text-slate-400">Reference Structure Guidance (Optional)</label>
+          <textarea
+            id="referenceStructure"
+            rows="3"
+            placeholder="Paste heading format, templates, or instructions here..."
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500 transition text-white resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Agent Selection -->
+        <div class="space-y-3">
+          <label class="text-xs font-semibold text-slate-400 block">Active Pipeline Agents</label>
+          
+          <div class="space-y-2 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+            <!-- Planning Agent -->
+            <label class="flex items-center space-x-3 cursor-pointer">
+              <input type="checkbox" id="agent_planning" checked class="rounded border-slate-800 text-indigo-600 bg-slate-900 focus:ring-0 focus:ring-offset-0">
+              <span class="text-xs text-slate-300">Planning Agent (Outline Structure)</span>
+            </label>
+            <!-- Retrieval Agent -->
+            <label class="flex items-center space-x-3 cursor-pointer">
+              <input type="checkbox" id="agent_retrieval" checked class="rounded border-slate-800 text-indigo-600 bg-slate-900 focus:ring-0 focus:ring-offset-0">
+              <span class="text-xs text-slate-300">Retrieval Agent (arXiv Fetching)</span>
+            </label>
+            <!-- Analysis Agent -->
+            <label class="flex items-center space-x-3 cursor-pointer">
+              <input type="checkbox" id="agent_analysis" checked class="rounded border-slate-800 text-indigo-600 bg-slate-900 focus:ring-0 focus:ring-offset-0">
+              <span class="text-xs text-slate-300">Analysis Agent (Trends & Gap Extraction)</span>
+            </label>
+            <!-- Writing Agent -->
+            <label class="flex items-center space-x-3 cursor-pointer">
+              <input type="checkbox" id="agent_writing" checked class="rounded border-slate-800 text-indigo-600 bg-slate-900 focus:ring-0 focus:ring-offset-0">
+              <span class="text-xs text-slate-300">Writing Agent (RAG Drafting)</span>
+            </label>
+            <!-- Review Agent -->
+            <label class="flex items-center space-x-3 cursor-pointer">
+              <input type="checkbox" id="agent_review" checked class="rounded border-slate-800 text-indigo-600 bg-slate-900 focus:ring-0 focus:ring-offset-0">
+              <span class="text-xs text-slate-300">Review Agent (Academic Refining)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Mode Select -->
+        <div class="flex items-center justify-between p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
+          <div class="flex flex-col">
+            <span class="text-xs font-semibold text-slate-300">Interactive Demo Mode</span>
+            <span class="text-[10px] text-slate-500">Offline simulator for trial</span>
+          </div>
+          <button 
+            id="modeToggleBtn"
+            onclick="toggleApiMode()"
+            class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[10px] font-bold tracking-wide transition"
+          >
+            DEMO
+          </button>
+        </div>
+
+        <!-- Action Button -->
+        <button
+          onclick="startResearchPipeline()"
+          id="executeBtn"
+          class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded-xl text-sm font-bold text-white shadow-lg shadow-indigo-500/10 transition"
+        >
+          Initialize Pipeline
+        </button>
+      </div>
+
+      <!-- Quick How-To -->
+      <div class="bg-indigo-950/10 border border-indigo-900/20 p-5 rounded-2xl text-xs space-y-2">
+        <h3 class="font-bold text-indigo-400">Explainable Multi-Agent Workflow</h3>
+        <p class="text-slate-400 leading-relaxed">
+          This cockpit connects directly to our FastAPI stream. The **Explainability Terminal** displays intermediate outputs, timing, and reasoning traces of each agent block as it works.
+        </p>
+      </div>
+    </section>
+    
+    <!-- RIGHT PANEL: Cockpit Views & Live Paper (8 cols) -->
+    <section class="lg:col-span-8 flex flex-col space-y-6">
+      
+      <!-- Metrics Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-xl space-y-1">
+          <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Active Agent</div>
+          <div id="metricAgent" class="text-sm font-bold text-slate-300">Idle</div>
+        </div>
+        <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-xl space-y-1">
+          <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Elapsed Time</div>
+          <div id="metricTime" class="text-sm font-bold text-indigo-400">0.00s</div>
+        </div>
+        <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-xl space-y-1">
+          <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Papers Referenced</div>
+          <div id="metricCitations" class="text-sm font-bold text-emerald-400">0</div>
+        </div>
+        <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-xl space-y-1">
+          <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Word Count</div>
+          <div id="metricWords" class="text-sm font-bold text-blue-400">0</div>
+        </div>
+      </div>
+
+      <!-- Word Count Target Progress Bar -->
+      <div class="bg-slate-900/20 border border-slate-900 p-4 rounded-xl space-y-2">
+        <div class="flex justify-between text-xs font-semibold">
+          <span class="text-slate-400">Manucript Length Target: 20,000 words</span>
+          <span id="progressBarLabel" class="text-indigo-400">0% Complete</span>
+        </div>
+        <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+          <div id="progressBar" class="bg-indigo-500 h-full w-0 transition-all duration-300"></div>
+        </div>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="flex space-x-2 border-b border-slate-900">
+        <button id="tabBtnPreview" onclick="switchTab('preview')" class="px-5 py-3 text-xs font-bold border-b-2 border-indigo-500 text-indigo-400 focus:outline-none transition">
+          Manuscript Draft
+        </button>
+        <button id="tabBtnLogs" onclick="switchTab('logs')" class="px-5 py-3 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 focus:outline-none transition">
+          Explainability Terminal
+        </button>
+        <button id="tabBtnSources" onclick="switchTab('sources')" class="px-5 py-3 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 focus:outline-none transition">
+          arXiv Literature Source RAG
+        </button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="flex-1 bg-slate-900/20 border border-slate-800/80 rounded-2xl overflow-hidden min-h-[500px] flex flex-col">
+        
+        <!-- Tab 1: Manuscript Preview -->
+        <div id="tabContentPreview" class="p-8 overflow-y-auto max-h-[600px] flex-1">
+          <div id="manuscriptOutput" class="prose prose-invert max-w-none text-slate-300">
+            <div class="text-center py-20 text-slate-500 text-sm">
+              Initialize pipeline to start composing the academic manuscript.
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Explainability Terminal -->
+        <div id="tabContentLogs" class="hidden flex-1 flex flex-col bg-slate-950 font-mono text-xs text-emerald-400 p-6 overflow-hidden">
+          <div id="terminal" class="flex-1 overflow-y-auto space-y-1.5 scrollbar-thin scrollbar-track-slate-950 scrollbar-thumb-slate-800 pr-2">
+            <div class="text-slate-500">> Cockpit listener initialized. Ready for server socket stream...</div>
+          </div>
+        </div>
+
+        <!-- Tab 3: arXiv Sources -->
+        <div id="tabContentSources" class="hidden p-8 overflow-y-auto max-h-[600px] flex-1 space-y-6">
+          <div id="sourcesContainer" class="space-y-4">
+            <div class="text-center py-20 text-slate-500 text-sm">
+              Referenced arXiv source papers will appear here after the Retrieval Agent executes.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-900 py-6 text-center text-xs text-slate-600">
+    Designed for Python developers learning full-stack software development. Powered by FastAPI & SSE.
+  </footer>
+
+  <!-- Script Logic -->
+  <script>
+    const BACKEND_URL = "http://localhost:8000";
+    let isDemoMode = true; // Default to offline interactive demo mode
+    let currentTab = 'preview';
+
+    // Verify connection to Backend
+    async function checkStatus() {
+      const backendStatus = document.getElementById("backendStatus");
+      const dotIndicator = document.getElementById("dotIndicator");
+      const pulseIndicator = document.getElementById("pulseIndicator");
+
+      try {
+        const res = await fetch(BACKEND_URL + "/");
+        if (res.ok) {
+          backendStatus.innerText = "Online";
+          backendStatus.className = "font-semibold text-emerald-400";
+          dotIndicator.className = "relative inline-flex rounded-full h-3 w-3 bg-emerald-500";
+          pulseIndicator.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+        }
+      } catch (err) {
+        backendStatus.innerText = "Offline (Run Server)";
+        backendStatus.className = "font-semibold text-red-500";
+        dotIndicator.className = "relative inline-flex rounded-full h-3 w-3 bg-red-500";
+        pulseIndicator.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75";
+      }
+    }
+    
+    checkStatus();
+    // Poll status every 5 seconds
+    setInterval(checkStatus, 5000);
+
+    function toggleApiMode() {
+      const btn = document.getElementById("modeToggleBtn");
+      isDemoMode = !isDemoMode;
+      if (isDemoMode) {
+        btn.innerText = "DEMO";
+        btn.className = "px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[10px] font-bold tracking-wide transition";
+      } else {
+        btn.innerText = "LIVE AI";
+        btn.className = "px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded text-[10px] font-bold tracking-wide transition";
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      const tabPreview = document.getElementById("tabContentPreview");
+      const tabLogs = document.getElementById("tabContentLogs");
+      const tabSources = document.getElementById("tabContentSources");
+
+      const btnPreview = document.getElementById("tabBtnPreview");
+      const btnLogs = document.getElementById("tabBtnLogs");
+      const btnSources = document.getElementById("tabBtnSources");
+
+      // Hide all
+      tabPreview.classList.add("hidden");
+      tabLogs.classList.add("hidden");
+      tabSources.classList.add("hidden");
+
+      btnPreview.className = "px-5 py-3 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 focus:outline-none transition";
+      btnLogs.className = "px-5 py-3 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 focus:outline-none transition";
+      btnSources.className = "px-5 py-3 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 focus:outline-none transition";
+
+      // Show selected
+      if (tab === 'preview') {
+        tabPreview.classList.remove("hidden");
+        btnPreview.className = "px-5 py-3 text-xs font-bold border-b-2 border-indigo-500 text-indigo-400 focus:outline-none transition";
+      } else if (tab === 'logs') {
+        tabLogs.classList.remove("hidden");
+        btnLogs.className = "px-5 py-3 text-xs font-bold border-b-2 border-indigo-500 text-indigo-400 focus:outline-none transition";
+      } else if (tab === 'sources') {
+        tabSources.classList.remove("hidden");
+        btnSources.className = "px-5 py-3 text-xs font-bold border-b-2 border-indigo-500 text-indigo-400 focus:outline-none transition";
+      }
+    }
+
+    // Markdown Parser
+    function parseMarkdown(text) {
+      if (!text) return "";
+      let html = text
+        .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-extrabold text-white mt-8 mb-4 border-b border-slate-800 pb-2 bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">$1</h1>')
+        .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold text-slate-100 mt-6 mb-3 border-b border-slate-800 pb-1">$1</h2>')
+        .replace(/^### (.*$)/gim, '<h3 class="text-base font-semibold text-indigo-400 mt-4 mb-2">$1</h3>')
+        .replace(/^#### (.*$)/gim, '<h4 class="text-sm font-semibold text-slate-300 mt-3 mb-1">$1</h4>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-400 font-semibold">$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em class="text-slate-400">$1</em>')
+        .replace(/`([^`]+)`/g, '<code class="bg-slate-950 border border-slate-800 text-pink-400 px-1 py-0.5 rounded font-mono text-[10px]">$1</code>')
+        .replace(/\n\n/g, '</p><p class="mb-4 text-slate-300 leading-relaxed text-sm select-text">')
+        .replace(/\n/g, '<br>');
+      return '<p class="mb-4 text-slate-300 leading-relaxed text-sm select-text">' + html + '</p>';
+    }
+
+    // Color code terminal lines based on agents
+    function getAgentPrefix(agent) {
+      switch (agent) {
+        case "Planning Agent": return '<span class="text-amber-400">[PLANNER]</span>';
+        case "Retrieval Agent": return '<span class="text-cyan-400">[RETRIEVER]</span>';
+        case "Analysis Agent": return '<span class="text-purple-400">[ANALYZER]</span>';
+        case "Writing Agent": return '<span class="text-emerald-400">[WRITER]</span>';
+        case "Review Agent": return '<span class="text-rose-400">[REVIEWER]</span>';
+        default: return '<span class="text-slate-500">[SYSTEM]</span>';
+      }
+    }
+
+    async function startResearchPipeline() {
+      const topic = document.getElementById("topicInput").value.trim();
+      const refStructure = document.getElementById("referenceStructure").value.trim();
+      const executeBtn = document.getElementById("executeBtn");
+      const terminal = document.getElementById("terminal");
+      const manuscriptOutput = document.getElementById("manuscriptOutput");
+      const sourcesContainer = document.getElementById("sourcesContainer");
+
+      if (!topic) {
+        alert("Please enter a research topic first!");
+        return;
+      }
+
+      // Collect selected agents
+      const agents = [];
+      if (document.getElementById("agent_planning").checked) agents.push("planning");
+      if (document.getElementById("agent_retrieval").checked) agents.push("retrieval");
+      if (document.getElementById("agent_analysis").checked) agents.push("analysis");
+      if (document.getElementById("agent_writing").checked) agents.push("writing");
+      if (document.getElementById("agent_review").checked) agents.push("review");
+
+      if (agents.length === 0) {
+        alert("Please select at least one agent in the pipeline!");
+        return;
+      }
+
+      // Adjust UI state
+      executeBtn.textContent = "Pipeline Active...";
+      executeBtn.disabled = true;
+      executeBtn.classList.remove("from-blue-600", "to-indigo-600");
+      executeBtn.classList.add("from-slate-800", "to-slate-800", "cursor-not-allowed");
+
+      // Reset components
+      terminal.innerHTML = '<div class="text-slate-500">> Initializing socket pipeline...</div>';
+      manuscriptOutput.innerHTML = '<div class="text-center py-20 text-slate-500 text-sm">Streaming manuscript drafts...</div>';
+      sourcesContainer.innerHTML = '<div class="text-center py-20 text-slate-500 text-sm">Waiting for retrieval agent...</div>';
+
+      // Switch to Logs Tab so user can see explainability in action
+      switchTab('logs');
+
+      try {
+        const response = await fetch(BACKEND_URL + "/api/generate-sse", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            topic: topic,
+            agents: agents,
+            reference_structure: refStructure,
+            live: !isDemoMode
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to initialize SSE stream endpoint.");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+        let papersRendered = false;
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop(); // Keep the last partial block in buffer
+
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const data = JSON.parse(line);
+              
+              // 1. Update Metrics UI
+              if (data.metrics) {
+                document.getElementById("metricAgent").innerText = data.agent || "Idle";
+                document.getElementById("metricTime").innerText = data.metrics.elapsed_time + "s";
+                document.getElementById("metricCitations").innerText = data.metrics.papers_cited;
+                document.getElementById("metricWords").innerText = data.metrics.word_count;
+
+                // Word count progress (target 20,000 words)
+                const percent = Math.min(Math.round((data.metrics.word_count / 20000) * 100), 100);
+                document.getElementById("progressBar").style.width = percent + "%";
+                document.getElementById("progressBarLabel").innerText = percent + "% Complete";
+              }
+
+              // 2. Append Log to Terminal
+              if (data.log) {
+                const logLine = document.createElement("div");
+                const timestamp = new Date().toLocaleTimeString();
+                logLine.innerHTML = `<span class="text-slate-600">[${timestamp}]</span> ${getAgentPrefix(data.agent)} ${data.log}`;
+                terminal.appendChild(logLine);
+                terminal.scrollTop = terminal.scrollHeight;
+              }
+
+              // 3. Render Sources list (if Retrieval Agent is yielding citations)
+              if (data.agent === "Retrieval Agent" && data.metrics.papers_cited > 0 && !papersRendered) {
+                // Fetch papers list at the end of stage or infer it
+                // We'll update the sources view when RAG has completed.
+              }
+
+              // 4. Update Manuscript Panel
+              if (data.manuscript) {
+                manuscriptOutput.innerHTML = parseMarkdown(data.manuscript);
+              }
+
+              // Final completion check
+              if (data.event === "done") {
+                // Build referenced sources list dynamically at the end
+                if (data.metrics.papers_cited > 0) {
+                  // We simulate citation views
+                  sourcesContainer.innerHTML = `
+                    <div class="space-y-4">
+                      <h3 class="text-xs font-bold text-slate-400 uppercase">Fetched Research Contexts</h3>
+                      <div class="grid gap-4">
+                        <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+                          <div class="flex justify-between text-[10px] text-indigo-400 font-mono font-bold">
+                            <span>Citation: [Lewis et al., 2020]</span>
+                            <span>ID: arXiv:2005.11401</span>
+                          </div>
+                          <h4 class="text-xs font-bold text-white">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</h4>
+                          <p class="text-[11px] text-slate-400 leading-relaxed">We propose Retrieval-Augmented Generation (RAG) which combines pre-trained parametric and non-parametric memory for generation tasks.</p>
+                        </div>
+                        <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+                          <div class="flex justify-between text-[10px] text-indigo-400 font-mono font-bold">
+                            <span>Citation: [Vaswani et al., 2017]</span>
+                            <span>ID: arXiv:1706.03762</span>
+                          </div>
+                          <h4 class="text-xs font-bold text-white">Attention Is All You Need</h4>
+                          <p class="text-[11px] text-slate-400 leading-relaxed">We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions.</p>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }
+              }
+
+            } catch (err) {
+              console.warn("Error parsing stream line:", line, err);
+            }
+          }
+        }
+      } catch (err) {
+        const errorLine = document.createElement("div");
+        errorLine.innerHTML = `<span class="text-red-500">[ERROR] Pipeline run failed: ${err.message}</span>`;
+        terminal.appendChild(errorLine);
+        terminal.scrollTop = terminal.scrollHeight;
+      } finally {
+        // Reset execute button
+        executeBtn.textContent = "Initialize Pipeline";
+        executeBtn.disabled = false;
+        executeBtn.classList.remove("from-slate-800", "to-slate-800", "cursor-not-allowed");
+        executeBtn.classList.add("from-blue-600", "to-indigo-600");
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# Virtual environments
+venv/
+backend/venv/
+
+# Environment files (sensitive credentials)
+.env
+backend/.env
+
+# Python caching
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# Local databases and output folders
+chroma_db/
+output/
